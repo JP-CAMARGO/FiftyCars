@@ -1,6 +1,9 @@
 package Utils;
 
+import Domain.Cliente;
 import Domain.Veiculo;
+
+import java.util.Queue;
 
 public class Utils {
 
@@ -86,5 +89,15 @@ public class Utils {
 
     public static String Preenche(String str,int tamanho) {
         return str + " ".repeat(tamanho-str.length());
+    }
+
+    public static Queue<Cliente> CarregaClientes(Queue<Cliente> clientes){
+        clientes.add(new Cliente("Juca Brito", "31-5349-3739", "Estrada do Corvo, s/n", 7));
+        clientes.add(new Cliente("Arlindo Orlando", "41-5669-6669", "Rua da Matriz, 05", 4));
+        clientes.add(new Cliente("Passos Dias Aguiar", "11-99988-7766", "Av. Paulista, 1001 1o andar", 7));
+        clientes.add(new Cliente("Melissa Peka", "22-5339-33333", "Rua Venida Lameda,24", 1));
+        clientes.add(new Cliente("Telma Neira", "91-2544-3299", "Praça do Correio, 2", 9));
+        clientes.add(new Cliente("Foobar Beiro", "11-1234-8756", "Beco do Cachorro Molhado, casa 3, 3o andar, fundos", 5));
+        return clientes;
     }
 }

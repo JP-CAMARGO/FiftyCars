@@ -1,24 +1,33 @@
 package View;
 
+import Domain.Cliente;
 import Domain.Veiculo;
 import Utils.ConsoleUtils;
 import Utils.Utils;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Queue;
+import java.util.Stack;
 
 import static Utils.ConsoleUtils.getUserInput;
 import static Utils.Utils.Preenche;
 
 public class VeiculoView {
     private Veiculo[] veiculos;
+    Queue<Cliente> clientes;
+    Stack<String> registros;
 
-    public VeiculoView(Veiculo[] veiculos) {
+    public VeiculoView(Veiculo[] veiculos, Queue<Cliente> clientes, Stack<String> registros) {
         this.veiculos = veiculos;
+        this.clientes = clientes;
+        this.registros = registros;
     }
 
     public  boolean MenuPrincipal(){
-        String[] options = new String[6];
+        String[] options = new String[8];
         StringBuilder sb = new StringBuilder("#".repeat(42));
         sb.append( " MENU PRINCIPAL ");
         sb.append("#".repeat(42));
@@ -26,20 +35,20 @@ public class VeiculoView {
         options[0] = "D";
         sb.append("  T : Listar Todos os Veículos  %n");
         options[1] = "T";
-        sb.append("  A : Alugar Veículo  %n");
-        options[2] = "A";
+        sb.append("  E : Lista de Espera  %n");
+        options[2] = "E";
+        sb.append("  A : Alugar Veículo para o próximo cliente na Lista de Espera  %n");
+        options[3] = "A";
         sb.append("  R : Retorno de Veículo  %n");
-        options[3] = "R";
+        options[4] = "R";
         sb.append("  V : Alterar valor da diária  %n");
-        options[4] = "V";
+        options[5] = "V";
+        sb.append("  H : Descarrega (lista) o histórico de operações  %n");
+        options[6] = "H";
         sb.append("  # ").append("# ".repeat(48)).append("%n");
         sb.append("  X : Sair  %n");
-        options[5] = "X";
+        options[7] = "X";
         sb.append("#".repeat(100)).append("%n");
-
-        /*  DIEGO : não coloquei as opções de alterar marca, modelo, cor, placa, porque iam ser cópias
-            da alteração do valor da diária, sem precisar ordenar o array no final.
-         */
 
         String opcao = ConsoleUtils.getUserOption(sb.toString(), options).toUpperCase(Locale.getDefault());
         switch (opcao) {
@@ -49,6 +58,9 @@ public class VeiculoView {
             case "T":
                 ListaVeiculos(false);
                 break;
+            case "E":
+                MostraListaDeEspera(clientes,veiculos);
+                break;
             case "A":
                 AlugaVeiculo();
                 break;
@@ -57,6 +69,9 @@ public class VeiculoView {
                 break;
             case "V":
                 AlteraValorDiaria();
+                break;
+            case "H":
+                ListaRegistros(registros);
                 break;
             case "X":
                 ConsoleUtils.clear();
@@ -92,6 +107,8 @@ public class VeiculoView {
     public void AlugaVeiculo(){
         boolean acabou=false;
         while (!acabou){
+            System.out.println("O veículo será alugado para o próximo cliente da nossa lista de espera :");
+            MostraProximoDaFila(clientes,veiculos);
             String nrVeiculo = ConsoleUtils.getUserInput("Informe o número do veículo a ser alugado, ou deixe em branco para voltar  : ");
             if(nrVeiculo.length()==0) {
                 acabou=true;
@@ -108,6 +125,11 @@ public class VeiculoView {
                         } else {
                             veiculos[index-1].setVeiculoDisponivel(false);
                             System.out.println("Situação do Veículo alterada para 'Alugado'");
+                            veiculos[index-1].setCliente(clientes.peek().getNome());
+                            RegistraOperacao(veiculos[index-1],registros,"ALUGADO PARA");
+                            Cliente salvaCliente = new Cliente("","","",0);
+                            salvaCliente = clientes.remove();
+                            clientes.add(salvaCliente);
                             acabou=true;
                         }
                     }
@@ -136,6 +158,8 @@ public class VeiculoView {
                         } else {
                             veiculos[index-1].setVeiculoDisponivel(true);
                             System.out.println("Situação do Veículo alterada para 'Disponível'");
+                            RegistraOperacao(veiculos[index-1],registros,"DEVOLVIDO POR");
+                            veiculos[index-1].setCliente("");
                             acabou=true;
                         }
                     }
@@ -187,5 +211,55 @@ public class VeiculoView {
                 }
             }
         }
+    }
+
+    public void MostraListaDeEspera(Queue<Cliente> clientes,Veiculo[] veiculos){
+        int n = clientes.size();
+        Cliente salvaCliente = new Cliente("","","",0);
+        System.out.println("Lista de Espera :\n\n");
+        for (int i= 0; i < n; i++) {
+            System.out.printf("%d :\n",i+1);
+            MostraProximoDaFila(clientes,veiculos);
+            salvaCliente=clientes.remove();
+            clientes.add(salvaCliente);
+        }
+    }
+
+
+    public void MostraProximoDaFila(Queue<Cliente> clientes,Veiculo[] veiculos){
+        String proximo="";
+
+        proximo += "> Nome :" + clientes.peek().getNome() + "\n";
+        proximo += "> Endereço : " + clientes.peek().getEndereco() + "\n";
+        proximo += "> Telefone : " + clientes.peek().getTelefone() + "\n";
+        proximo += "> Carro de Preferência : nosso veículo nº " + (clientes.peek().getIndexVeiculoDesejado()+1);
+        proximo += ", " + veiculos[clientes.peek().getIndexVeiculoDesejado()].getMarca();
+        proximo += " " + veiculos[clientes.peek().getIndexVeiculoDesejado()].getModelo();
+        proximo += " " + veiculos[clientes.peek().getIndexVeiculoDesejado()].getCor() + "\n";
+
+        System.out.println(proximo);
+
+    }
+
+    public void RegistraOperacao(Veiculo veiculo,Stack<String> registros, String operacao){
+        String registro="";
+
+        SimpleDateFormat formatter= new SimpleDateFormat("dd/MM/yyyy 'às' HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
+        registro += formatter.format(date);
+        registro += " : veículo " + veiculo.getMarca() + ", " + veiculo.getModelo() + ", "
+                + veiculo.getPlaca()+ " foi "+ operacao + " " + veiculo.getCliente();
+        registros.push(registro);
+    }
+
+    public void ListaRegistros(Stack<String> registros){
+
+        System.out.println("Histórico de operações (desde a última listagem)");
+        System.out.println("------------------------------------------------");
+
+        while (!registros.empty()) {
+            System.out.println(registros.pop());
+        }
+        System.out.println();
     }
 }

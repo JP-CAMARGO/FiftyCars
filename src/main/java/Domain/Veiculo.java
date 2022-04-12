@@ -12,11 +12,21 @@ public class Veiculo {
     int index;
     double valorDiaria;
     boolean veiculoDisponivel;
+    String cliente;
+
+    public String getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(String cliente) {
+        this.cliente = cliente;
+    }
 
     public Veiculo() {
         this.valorDiaria=0;
         this.veiculoDisponivel=true;
         this.index=0;
+        this.cliente="";
     }
 
     public void setPlaca(String placa) {
