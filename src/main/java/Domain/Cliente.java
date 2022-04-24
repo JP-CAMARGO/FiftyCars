@@ -6,13 +6,21 @@ public class Cliente {
     String nome;
     String telefone;
     String endereco;
-    int indexVeiculoDesejado;
+    Veiculo veiculoDesejado;
 
-    public Cliente(String nome, String telefone, String endereco, int indexVeiculoDesejado) {
+    public Veiculo getVeiculoDesejado() {
+        return veiculoDesejado;
+    }
+
+    public void setVeiculoDesejado(Veiculo veiculoDesejado) {
+        this.veiculoDesejado = veiculoDesejado;
+    }
+
+    public Cliente(String nome, String telefone, String endereco, Veiculo veiculoDesejado) {
         this.nome = nome;
         this.telefone = telefone;
         this.endereco = endereco;
-        this.indexVeiculoDesejado = indexVeiculoDesejado;
+        this.veiculoDesejado = veiculoDesejado;
     }
 
     public String getNome() {
@@ -27,8 +35,8 @@ public class Cliente {
         return endereco;
     }
 
-    public int getIndexVeiculoDesejado() {
-        return indexVeiculoDesejado;
+    public Veiculo getIndexVeiculoDesejado() {
+        return veiculoDesejado;
     }
 
     public void setNome(String nome) {
@@ -43,9 +51,8 @@ public class Cliente {
         this.endereco = endereco;
     }
 
-    public void setIndexVeiculoDesejado(int indexVeiculoDesejado) {
-        this.indexVeiculoDesejado = indexVeiculoDesejado;
+    public void setIndexVeiculoDesejado(Veiculo veiculoDesejado) {
+        this.veiculoDesejado = veiculoDesejado;
     }
-
 
 }

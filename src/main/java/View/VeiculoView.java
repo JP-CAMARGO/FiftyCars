@@ -1,6 +1,7 @@
 package View;
 
 import Domain.Cliente;
+import Domain.Filial;
 import Domain.Veiculo;
 import Utils.ConsoleUtils;
 import Utils.Utils;
@@ -16,21 +17,24 @@ import static Utils.ConsoleUtils.getUserInput;
 import static Utils.Utils.Preenche;
 
 public class VeiculoView {
-    private Veiculo[] veiculos;
-    Queue<Cliente> clientes;
+    Filial filial;
+    private Veiculo[] frota;
+    Queue<Cliente> listaEspera;
     Stack<String> registros;
 
-    public VeiculoView(Veiculo[] veiculos, Queue<Cliente> clientes, Stack<String> registros) {
-        this.veiculos = veiculos;
-        this.clientes = clientes;
-        this.registros = registros;
+    public VeiculoView(Filial filial) {
+        this.filial = filial;
+        this.frota = filial.getFrota();
+        this.listaEspera = filial.getListaEspera();
+        this.registros = filial.getRegistros();
     }
 
     public  boolean MenuPrincipal(){
         String[] options = new String[8];
-        StringBuilder sb = new StringBuilder("#".repeat(42));
-        sb.append( " MENU PRINCIPAL ");
-        sb.append("#".repeat(42));
+        String titulo = " MENU DA FILIAL " + filial.getNome() + "  ";
+        StringBuilder sb = new StringBuilder("%n").append("#".repeat((100-titulo.length())/2));
+        sb.append( titulo );
+        sb.append("#".repeat((100-titulo.length())/2));
         sb.append("%n").append("  D : Listar Veículos Disponíveis  %n");
         options[0] = "D";
         sb.append("  T : Listar Todos os Veículos  %n");
@@ -46,7 +50,7 @@ public class VeiculoView {
         sb.append("  H : Descarrega (lista) o histórico de operações  %n");
         options[6] = "H";
         sb.append("  # ").append("# ".repeat(48)).append("%n");
-        sb.append("  X : Sair  %n");
+        sb.append("  X : Voltar ao Menu Principal  %n");
         options[7] = "X";
         sb.append("#".repeat(100)).append("%n");
 
@@ -59,7 +63,7 @@ public class VeiculoView {
                 ListaVeiculos(false);
                 break;
             case "E":
-                MostraListaDeEspera(clientes,veiculos);
+                MostraListaDeEspera(listaEspera,frota);
                 break;
             case "A":
                 AlugaVeiculo();
@@ -74,8 +78,6 @@ public class VeiculoView {
                 ListaRegistros(registros);
                 break;
             case "X":
-                ConsoleUtils.clear();
-                System.out.println("Obrigado!!");
                 return true;
             default:
                 System.out.println("Opção inválida!!!");
@@ -85,19 +87,19 @@ public class VeiculoView {
 
     public  void ListaVeiculos(boolean disponivel) {
         /* se disponivel=true, lista só os disponíveis; senão lista todos */
-        System.out.println("Nr.\tMarca      Modelo     Cor        Placa      Diária (R$) Situação");
-        System.out.println("---\t---------- ---------- ---------- ---------- ----------- ---------- ");
+        System.out.println("\nNr.\tMarca           Modelo          Cor        Placa      Diária (R$) Situação");
+        System.out.println("---\t--------------- --------------- ---------- ---------- ----------- ---------- ");
 
-        for (int i = 0; i < 10; i++) {
-            if(!disponivel || veiculos[i].isVeiculoDisponivel()) {
+        for (int i = 0; i < filial.getTamanhoFrota(); i++) {
+            if(!disponivel || frota[i].isVeiculoDisponivel()) {
                 System.out.printf("%d\t%s %s %s %s %11.2f %s\n",
-                        veiculos[i].getIndex()+1,
-                        Preenche(veiculos[i].getMarca(),10),
-                        Preenche(veiculos[i].getModelo(),10),
-                        Preenche(veiculos[i].getCor(),10),
-                        Preenche(veiculos[i].getPlaca(),10),
-                        veiculos[i].getValorDiaria(),
-                        (veiculos[i].isVeiculoDisponivel()?"Disponível":"Alugado")
+                        i+1,
+                        Preenche(frota[i].getMarca(),15),
+                        Preenche(frota[i].getModelo(),15),
+                        Preenche(frota[i].getCor(),10),
+                        Preenche(frota[i].getPlaca(),10),
+                        frota[i].getValorDiaria(),
+                        (frota[i].isVeiculoDisponivel()?"Disponível":"Alugado")
                 );
             }
         }
@@ -108,7 +110,7 @@ public class VeiculoView {
         boolean acabou=false;
         while (!acabou){
             System.out.println("O veículo será alugado para o próximo cliente da nossa lista de espera :");
-            MostraProximoDaFila(clientes,veiculos);
+            MostraProximoDaFila(listaEspera);
             String nrVeiculo = ConsoleUtils.getUserInput("Informe o número do veículo a ser alugado, ou deixe em branco para voltar  : ");
             if(nrVeiculo.length()==0) {
                 acabou=true;
@@ -117,19 +119,20 @@ public class VeiculoView {
                     System.out.println("Valor inválido - informe um número da lista de veículos disponíveis");
                 } else {
                     int index = Integer.valueOf(nrVeiculo);
-                    if (index<1 || index>10) {
+                    if (index<1 || index>filial.getTamanhoFrota()) {
                         System.out.println("Valor inválido - informe um número da lista de veículos disponíveis");
                     } else {
-                        if (!veiculos[index-1].isVeiculoDisponivel()) {
+                        if (!frota[index-1].isVeiculoDisponivel()) {
                             System.out.println("Valor inválido - informe um número da lista de veículos disponíveis");
                         } else {
-                            veiculos[index-1].setVeiculoDisponivel(false);
+                            frota[index-1].setVeiculoDisponivel(false);
                             System.out.println("Situação do Veículo alterada para 'Alugado'");
-                            veiculos[index-1].setCliente(clientes.peek().getNome());
-                            RegistraOperacao(veiculos[index-1],registros,"ALUGADO PARA");
-                            Cliente salvaCliente = new Cliente("","","",0);
-                            salvaCliente = clientes.remove();
-                            clientes.add(salvaCliente);
+                            frota[index-1].setCliente(listaEspera.peek().getNome());
+                            RegistraOperacao(frota[index-1],registros,"ALUGADO PARA");
+                            Cliente salvaCliente = new Cliente("","","",null);
+                            salvaCliente = listaEspera.remove();
+                            // coloca o indivíduo na lista de novo. Só pra não ter que tratar a lista de espera vazia. Prometo que depois eu faço
+                            listaEspera.add(salvaCliente);
                             acabou=true;
                         }
                     }
@@ -153,13 +156,13 @@ public class VeiculoView {
                     if (index<1 || index>10) {
                         System.out.println("Valor inválido - informe um número da lista de veículos onde a situação é 'alugado' ");
                     } else {
-                        if (veiculos[index-1].isVeiculoDisponivel()) {
+                        if (frota[index-1].isVeiculoDisponivel()) {
                             System.out.println("Valor inválido - informe um número da lista de veículos onde a situação é 'alugado' ");
                         } else {
-                            veiculos[index-1].setVeiculoDisponivel(true);
+                            frota[index-1].setVeiculoDisponivel(true);
                             System.out.println("Situação do Veículo alterada para 'Disponível'");
-                            RegistraOperacao(veiculos[index-1],registros,"DEVOLVIDO POR");
-                            veiculos[index-1].setCliente("");
+                            RegistraOperacao(frota[index-1],registros,"DEVOLVIDO POR");
+                            frota[index-1].setCliente("");
                             acabou=true;
                         }
                     }
@@ -191,7 +194,7 @@ public class VeiculoView {
         }
 
         while (!acabou) {
-            System.out.printf("O valor atual dessa diária é R$ %7.2f \n",veiculos[index-1].getValorDiaria());
+            System.out.printf("O valor atual dessa diária é R$ %7.2f \n",frota[index-1].getValorDiaria());
             String valorDiaria = ConsoleUtils.getUserInput("Informe o novo valor da diária, ou deixe em branco para voltar  : ");
             if(valorDiaria.length()==0) {
                 acabou=true;
@@ -203,9 +206,9 @@ public class VeiculoView {
                     if (valDiaria <= 0) {
                         System.out.println("Valor inválido - informe um número maior do que zero");
                     } else {
-                        veiculos[index - 1].setValorDiaria(valDiaria);
+                        frota[index - 1].setValorDiaria(valDiaria);
                         System.out.println("Valor da Diária alterado!");
-                        veiculos = Utils.OrdenaVeiculos(veiculos);
+                        filial.OrdenaVeiculos();
                         acabou = true;
                     }
                 }
@@ -213,29 +216,29 @@ public class VeiculoView {
         }
     }
 
-    public void MostraListaDeEspera(Queue<Cliente> clientes,Veiculo[] veiculos){
-        int n = clientes.size();
-        Cliente salvaCliente = new Cliente("","","",0);
+    public void MostraListaDeEspera(Queue<Cliente> listaEspera,Veiculo[] veiculos){
+        int n = listaEspera.size();
+        Cliente salvaCliente = new Cliente("","","",null);
         System.out.println("Lista de Espera :\n\n");
         for (int i= 0; i < n; i++) {
             System.out.printf("%d :\n",i+1);
-            MostraProximoDaFila(clientes,veiculos);
-            salvaCliente=clientes.remove();
-            clientes.add(salvaCliente);
+            MostraProximoDaFila(listaEspera);
+            salvaCliente=listaEspera.remove();
+            listaEspera.add(salvaCliente);
         }
     }
 
 
-    public void MostraProximoDaFila(Queue<Cliente> clientes,Veiculo[] veiculos){
+    public void MostraProximoDaFila(Queue<Cliente> listaEspera){
         String proximo="";
 
-        proximo += "> Nome :" + clientes.peek().getNome() + "\n";
-        proximo += "> Endereço : " + clientes.peek().getEndereco() + "\n";
-        proximo += "> Telefone : " + clientes.peek().getTelefone() + "\n";
-        proximo += "> Carro de Preferência : nosso veículo nº " + (clientes.peek().getIndexVeiculoDesejado()+1);
-        proximo += ", " + veiculos[clientes.peek().getIndexVeiculoDesejado()].getMarca();
-        proximo += " " + veiculos[clientes.peek().getIndexVeiculoDesejado()].getModelo();
-        proximo += " " + veiculos[clientes.peek().getIndexVeiculoDesejado()].getCor() + "\n";
+        proximo += "> Nome :" + listaEspera.peek().getNome() + "\n";
+        proximo += "> Endereço : " + listaEspera.peek().getEndereco() + "\n";
+        proximo += "> Telefone : " + listaEspera.peek().getTelefone() + "\n";
+        proximo += "> Carro de Preferência :";
+        proximo += " " + listaEspera.peek().getVeiculoDesejado().getMarca();
+        proximo += " " + listaEspera.peek().getVeiculoDesejado().getModelo();
+        proximo += " " + listaEspera.peek().getVeiculoDesejado().getCor() + "\n";
 
         System.out.println(proximo);
 

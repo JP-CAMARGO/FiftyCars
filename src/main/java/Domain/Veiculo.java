@@ -9,7 +9,6 @@ public class Veiculo {
     String marca;
     String cor;
     String modelo;
-    int index;
     double valorDiaria;
     boolean veiculoDisponivel;
     String cliente;
@@ -25,8 +24,17 @@ public class Veiculo {
     public Veiculo() {
         this.valorDiaria=0;
         this.veiculoDisponivel=true;
-        this.index=0;
         this.cliente="";
+    }
+
+    public Veiculo(String placa, String marca, String cor, String modelo, double valorDiaria) {
+        this.placa = placa;
+        this.marca = marca;
+        this.cor = cor;
+        this.modelo = modelo;
+        this.valorDiaria = valorDiaria;
+        this.veiculoDisponivel = true;
+        this.cliente = "";
     }
 
     public void setPlaca(String placa) {
@@ -76,13 +84,5 @@ public class Veiculo {
     public boolean isVeiculoDisponivel() {
         return veiculoDisponivel;
     }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-    public int getIndex() {
-        return index;
-    }
-
 
 }

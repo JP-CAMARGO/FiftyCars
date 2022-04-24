@@ -1,103 +1,162 @@
 package Utils;
 
 import Domain.Cliente;
+import Domain.Filial;
 import Domain.Veiculo;
 
+import java.text.DecimalFormat;
 import java.util.Queue;
 
 public class Utils {
 
-    public static Veiculo[] CarregaVeiculos(Veiculo[] veiculos){
-        /* inicializa o array veiculos com os 10 veículos da frota de Fifty Cars */
-        for (int i = 0; i < 10; i++) {
-            veiculos[i] = new Veiculo();
-            veiculos[i].setVeiculoDisponivel(true);
-            veiculos[i].setValorDiaria(200-i*10);
-        }
+    public static void CarregaDadosFilial(Filial filial){
 
-        veiculos[0].setPlaca("AAA-0000");
-        veiculos[1].setPlaca("BBB-1111");
-        veiculos[2].setPlaca("CCC-2222");
-        veiculos[3].setPlaca("DDD-3333");
-        veiculos[4].setPlaca("EEE-4444");
-        veiculos[5].setPlaca("FFF-5555");
-        veiculos[6].setPlaca("GGG-6666");
-        veiculos[7].setPlaca("HHH-7777");
-        veiculos[8].setPlaca("III-8888");
-        veiculos[9].setPlaca("JJJ-9999");
-
-        veiculos[0].setCor("Branco");
-        veiculos[1].setCor("Prata");
-        veiculos[2].setCor("Preto");
-        veiculos[3].setCor("Vermelho");
-        veiculos[4].setCor("Azul");
-        veiculos[5].setCor("Verde");
-        veiculos[6].setCor("Branco");
-        veiculos[7].setCor("Prata");
-        veiculos[8].setCor("Preto");
-        veiculos[9].setCor("Branco");
-
-        veiculos[0].setMarca("Toyota");
-        veiculos[1].setMarca("Fiat");
-        veiculos[2].setMarca("Renault");
-        veiculos[3].setMarca("Ford");
-        veiculos[4].setMarca("GM");
-        veiculos[5].setMarca("Honda");
-        veiculos[6].setMarca("VW");
-        veiculos[7].setMarca("Fiat");
-        veiculos[8].setMarca("Honda");
-        veiculos[9].setMarca("VW");
-
-        veiculos[0].setModelo("Corolla");
-        veiculos[1].setModelo("Palio");
-        veiculos[2].setModelo("Sandero");
-        veiculos[3].setModelo("Focus");
-        veiculos[4].setModelo("Prisma");
-        veiculos[5].setModelo("Fit");
-        veiculos[6].setModelo("Gol");
-        veiculos[7].setModelo("Siena");
-        veiculos[8].setModelo("Civic");
-        veiculos[9].setModelo("Jetta");
-
-        return veiculos;
-    }
-
-    public static Veiculo[] OrdenaVeiculos(Veiculo[] veiculos) {
-        /* ordena o array veiculos pelo valor da diária (crescente) */
-
-        Veiculo veiculoAuxiliar = new Veiculo();
-
-        for (int i = 1; i < 10; i++) {
-            int j=i;
-            boolean acabou=false;
-            while(veiculos[j].getValorDiaria()<veiculos[j-1].getValorDiaria() && !acabou) {
-                veiculoAuxiliar = veiculos[j - 1];
-                veiculos[j - 1] = veiculos[j];
-                veiculos[j]=veiculoAuxiliar;
-                if(j==1) {
-                    acabou=true;
-                } else {
-                    j--;
-                }
-            }
-        }
-        for (int i = 0; i < 10; i++) {
-            veiculos[i].setIndex(i);
-        }
-        return veiculos;
+        CarregaVeiculos(filial);
+        filial.OrdenaVeiculos();
+        CarregaClientes(filial);
     }
 
     public static String Preenche(String str,int tamanho) {
         return str + " ".repeat(tamanho-str.length());
     }
 
-    public static Queue<Cliente> CarregaClientes(Queue<Cliente> clientes){
-        clientes.add(new Cliente("Juca Brito", "31-5349-3739", "Estrada do Corvo, s/n", 7));
-        clientes.add(new Cliente("Arlindo Orlando", "41-5669-6669", "Rua da Matriz, 05", 4));
-        clientes.add(new Cliente("Passos Dias Aguiar", "11-99988-7766", "Av. Paulista, 1001 1o andar", 7));
-        clientes.add(new Cliente("Melissa Peka", "22-5339-33333", "Rua Venida Lameda,24", 1));
-        clientes.add(new Cliente("Telma Neira", "91-2544-3299", "Praça do Correio, 2", 9));
-        clientes.add(new Cliente("Foobar Beiro", "11-1234-8756", "Beco do Cachorro Molhado, casa 3, 3o andar, fundos", 5));
-        return clientes;
+    public static String FormataInteiro(int numero,int tamanho) {
+        String retorno = new DecimalFormat("0").format(numero);
+        return " ".repeat(tamanho-retorno.length()) + retorno;
+    }
+    public static String FormataDecimal(double numero,int tamanho) {
+        String retorno = new DecimalFormat("0.00").format(numero);
+        return " ".repeat(tamanho-retorno.length()) + retorno;
+    }
+
+    public static void CarregaVeiculos(Filial filial){
+        /* inicializa o array frota em cada filial de Fifty Cars com 10 veículos */
+        Veiculo[] frota = new Veiculo[10];
+        switch (filial.getNome()){
+            case "Diadema" :
+                filial.setTamanhoFrota(5);
+                frota[0] = new Veiculo("AAA-0000","VW","Preta","Fusca",50);
+                frota[1] = new Veiculo("BBB-1111","FORD","Prata","Fiesta",74);
+                frota[2] = new Veiculo("CCC-2222","GM","Grafite","Chevette",35);
+                frota[3] = new Veiculo("DDD-3333","FIAT","Vermelha","147",41);
+                frota[4] = new Veiculo("EEE-4444","GURGEL","Cinza","BR-800",60);
+                break;
+            case "Paris" :
+                filial.setTamanhoFrota(7);
+                frota[0] = new Veiculo("AAA-0000","CITROEN","Preta","C5",230);
+                frota[1] = new Veiculo("BBB-1111","RENAULT","Prata","MEGANE",210);
+                frota[2] = new Veiculo("CCC-2222","PEUGEOT","Grafite","307 SEDAN",320);
+                frota[3] = new Veiculo("DDD-3333","FORD","Vermelha","MUSTANG",350);
+                frota[4] = new Veiculo("EEE-4444","McLAREN","Cinza","350",380);
+                frota[5] = new Veiculo("FFF-5555","FIAT","Amarela","500",310);
+                frota[6] = new Veiculo("GGG-6666","RENAULT","Verde","SCENIC",290);
+                break;
+            case "Viena" :
+                filial.setTamanhoFrota(9);
+                frota[0] = new Veiculo("AAA-0000","BMW","Preta","X3",230);
+                frota[1] = new Veiculo("BBB-1111","VOLVO","Prata","C60",210);
+                frota[2] = new Veiculo("CCC-2222","MERCEDES-BENZ","Grafite","AMG GT",320);
+                frota[3] = new Veiculo("DDD-3333","FERRARI","Vermelha","458 ITALIA",350);
+                frota[4] = new Veiculo("EEE-4444","BUGATTI","Cinza","VEYRON",380);
+                frota[5] = new Veiculo("FFF-5555","LAMBORGHINI","Amarela","AVENTATOR V12",310);
+                frota[6] = new Veiculo("GGG-6666","JAGUAR","Verde","XK 120",290);
+                frota[7] = new Veiculo("HHH-7777","AUDI","Prata","R8",280);
+                frota[8] = new Veiculo("III-8888","ASTON MARTIN","Branco","V12 VANTAGE S",330);
+                break;
+            case "Dubai" :
+                filial.setTamanhoFrota(10);
+                frota[0] = new Veiculo("AAA-0000","BMW","Preta","X4",230);
+                frota[1] = new Veiculo("BBB-1111","VOLVO","Prata","C60",210);
+                frota[2] = new Veiculo("CCC-2222","MERCEDES-BENZ","Grafite","AMG GT",320);
+                frota[3] = new Veiculo("DDD-3333","FERRARI","Vermelha","458 ITALIA",350);
+                frota[4] = new Veiculo("EEE-4444","BUGATTI","Cinza","VEYRON",380);
+                frota[5] = new Veiculo("FFF-5555","LAMBORGHINI","Amarela","AVENTATOR V12",310);
+                frota[6] = new Veiculo("GGG-6666","JAGUAR","Verde","XK 120",290);
+                frota[7] = new Veiculo("HHH-7777","AUDI","Prata","R8",280);
+                frota[8] = new Veiculo("III-8888","ASTON MARTIN","Branco","V12 VANTAGE S",330);
+                frota[9] = new Veiculo("JJJ-9999","ROLLS ROYCE","Preto","HYPERIOS",510.01);
+                break;
+            case "Perus" :
+                filial.setTamanhoFrota(6);
+                frota[5] = new Veiculo("AAA-0000","VW","Preta","Fusca",50);
+                frota[4] = new Veiculo("BBB-1111","FORD","Prata","Fiesta",74);
+                frota[3] = new Veiculo("CCC-2222","GM","Azul","Chevette",35);
+                frota[2] = new Veiculo("DDD-3333","FIAT","Vermelha","147",41);
+                frota[1] = new Veiculo("EEE-4444","GURGEL","Cinza","BR-800",60);
+                frota[0] = new Veiculo("FFF-5555","VW","Amarela","Brasília",310);
+                break;
+            default :
+                filial.setTamanhoFrota(10);
+                frota[0] = new Veiculo("AAA-0000","BMW","Preta","X6",230);
+                frota[1] = new Veiculo("BBB-1111","VOLVO","Prata","C60",210);
+                frota[2] = new Veiculo("CCC-2222","MERCEDES-BENZ","Grafite","AMG GT",320);
+                frota[3] = new Veiculo("DDD-3333","FERRARI","Vermelha","458 ITALIA",350);
+                frota[4] = new Veiculo("EEE-4444","BUGATTI","Cinza","VEYRON",380);
+                frota[5] = new Veiculo("FFF-5555","LAMBORGHINI","Amarela","AVENTATOR V12",310);
+                frota[6] = new Veiculo("GGG-6666","JAGUAR","Verde","XK 120",290);
+                frota[7] = new Veiculo("HHH-7777","AUDI","Prata","R8",280);
+                frota[8] = new Veiculo("III-8888","ASTON MARTIN","Branco","V12 VANTAGE S",330);
+                frota[9] = new Veiculo("JJJ-9999","ROLLS ROYCE","Preto","HYPERIOS",510.01);
+        }
+        filial.setFrota(frota);
+    }
+
+
+
+    public static void CarregaClientes(Filial filial){
+
+        Queue<Cliente> listaEspera;
+        listaEspera = filial.getListaEspera();
+        Veiculo[] frota = new Veiculo[10];
+        frota = filial.getFrota();
+
+        switch (filial.getNome()) {
+            case "Diadema":
+                filial.setTamanhoListaEspera(4);
+                listaEspera.add(new Cliente("Juca Brito", "31-5349-3739", "Estrada do Corvo, s/n", frota[0]));
+                listaEspera.add(new Cliente("Arlindo Orlando", "41-5669-6669", "Rua da Matriz, 05", frota[1]));
+                listaEspera.add(new Cliente("Passos Dias Aguiar", "11-99988-7766", "Av. Paulista, 1001 1o andar", frota[2]));
+                listaEspera.add(new Cliente("Maria das Dores", "11-99988-7766", "Av. Diademense, 254", frota[3]));
+                break;
+            case "Paris":
+                filial.setTamanhoListaEspera(6);
+                listaEspera.add(new Cliente("Jean-Pierre Tran", "31-5349-3739", "Estrada do Corvo, s/n", frota[1]));
+                listaEspera.add(new Cliente("Nicolas Legrans", "41-5669-6669", "Rua da Matriz, 05", frota[4]));
+                listaEspera.add(new Cliente("Emannuel Macron", "11-99988-7766", "Av. Paulista, 1001 1o andar", frota[3]));
+                listaEspera.add(new Cliente("Dominique Nique", "22-5339-33333", "Rua Venida Lameda,24", frota[2]));
+                listaEspera.add(new Cliente("Edwiges Lafont", "91-2544-3299", "Praça do Correio, 2", frota[6]));
+                listaEspera.add(new Cliente("Louis Charles", "11-1234-8756", "Beco do Cachorro Molhado, casa 3, 3o andar, fundos", frota[5]));
+                break;
+            case "Viena":
+                filial.setTamanhoListaEspera(3);
+                listaEspera.add(new Cliente("Hanz Fritz", "31-5349-3739", "Estrada do Corvo, s/n", frota[2]));
+                listaEspera.add(new Cliente("Johann Sebastião", "41-5669-6669", "Rua da Matriz, 05", frota[4]));
+                listaEspera.add(new Cliente("Grettel Gretchen", "11-99988-7766", "Av. Paulista, 1001 1o andar", frota[7]));
+                break;
+            case "Dubai":
+                filial.setTamanhoListaEspera(3);
+                listaEspera.add(new Cliente("Yussef Abdul", "31-5349-3739", "Estrada do Corvo, s/n", frota[7]));
+                listaEspera.add(new Cliente("Mohammed Ali", "41-5669-6669", "Rua da Matriz, 05", frota[4]));
+                listaEspera.add(new Cliente("Mustafá Lido", "11-99988-7766", "Av. Paulista, 1001 1o andar", frota[7]));
+                break;
+            case "Perus":
+                filial.setTamanhoListaEspera(5);
+                listaEspera.add(new Cliente("Joca Brito", "31-5349-3739", "Estrada do Corvo, s/n", frota[3]));
+                listaEspera.add(new Cliente("Arlindo Orlando", "41-5669-6669", "Rua da Matriz, 05", frota[4]));
+                listaEspera.add(new Cliente("Passos Dias Aguiar", "11-99988-7766", "Av. Paulista, 1001 1o andar", frota[5]));
+                listaEspera.add(new Cliente("Melissa Peka", "22-5339-33333", "Rua Venida Lameda,24", frota[0]));
+                listaEspera.add(new Cliente("Telma Neira", "91-2544-3299", "Praça do Correio, 2", frota[2]));
+                break;
+            default:
+                filial.setTamanhoListaEspera(6);
+                listaEspera.add(new Cliente("Jica Brito", "31-5349-3739", "Estrada do Corvo, s/n", frota[7]));
+                listaEspera.add(new Cliente("Arlindo Orlando", "41-5669-6669", "Rua da Matriz, 05", frota[4]));
+                listaEspera.add(new Cliente("Passos Dias Aguiar", "11-99988-7766", "Av. Paulista, 1001 1o andar", frota[7]));
+                listaEspera.add(new Cliente("Melissa Peka", "22-5339-33333", "Rua Venida Lameda,24", frota[1]));
+                listaEspera.add(new Cliente("Telma Neira", "91-2544-3299", "Praça do Correio, 2", frota[9]));
+                listaEspera.add(new Cliente("Foobar Beiro", "11-1234-8756", "Beco do Cachorro Molhado, casa 3, 3o andar, fundos", frota[5]));
+                break;
+        }
+
     }
 }
